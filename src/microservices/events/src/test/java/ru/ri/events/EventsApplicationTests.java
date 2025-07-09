@@ -1,10 +1,10 @@
-package ru.ri.proxy;
+package ru.ri.events;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ProxyApplicationTests {
+class EventsApplicationTests {
 
     @Test
     void contextLoads() {
