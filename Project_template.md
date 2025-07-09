@@ -121,6 +121,7 @@ jobs:
 Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
 Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
 
+![cicd_success.png](images/cicd_success.png)
 
 ### Proxy в Kubernetes
 
@@ -180,6 +181,12 @@ cat .docker/config.json | base64
 
   - Необходимо создать Deployment и Service 
   - Доработайте ingress.yaml, чтобы можно было с помощью тестов проверить создание событий
+
+[dockerconfigsecret.yaml](./src/kubernetes/dockerconfigsecret.yaml)
+[events-service.yaml](src/kubernetes/events-service.yaml)
+[proxy-service.yaml](src/kubernetes/proxy-service.yaml)
+[ingress.yaml](src/kubernetes/ingress.yaml)
+
   - Выполните дальшейшие шаги для поднятия кластера:
 
   1. Создайте namespace:
@@ -286,6 +293,15 @@ cat .docker/config.json | base64
 
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
+- ![postman_api.movies.png](images/postman_api.movies.png)
+
+- логи тестов:
+  - ![api_tests_logs.png](images/api_tests_logs.png)
+- логи event-service, где запросы `api/events/movie, api/events/payment, api/events/user` должны были:
+  - попасть через proxy в event-service;
+  - отправиться в kafka;
+  - обработаться из kafka;
+    - ![events_service_to_from_kafka_logs.png](images/events_service_to_from_kafka_logs.png)
 
 
 # Задание 4
@@ -368,3 +384,9 @@ https://cinemaabyss.example.com/api/movies
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+
+- развертывание и состояние кластера:
+  - ![helm_install.png](images/helm_install.png)
+  - ![helm_pods_check.png](images/helm_pods_check.png)
+-  проверка в postman:
+  - ![postman_api_check.png](images/postman_api_check.png)
