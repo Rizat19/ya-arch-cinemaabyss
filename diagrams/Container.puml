@@ -1,0 +1,77 @@
+@startuml
+title Cinema Abyss Container Diagram
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+top to bottom direction
+
+Person(user, "Пользователь", "Пользователь онлайн-кинотеатра")
+
+Container(web_app, "Web App", "Browser", "Веб-интерфейс для просмотра и взаимодействия")
+Container(mobile_app, "Mobile App", "Kotlin, Swift", "Мобильное приложение для просмотра контента")
+Container(tv_app, "Smart TV App", "Smart TV", "Приложение для телевизоров")
+
+Container(api_gateway, "API Gateway", "Nginx, Java Spring", "Маршрутизация и проксирование запросов")
+
+Container(auth_service, "Auth Service", "Java Spring", "Аутентификация и авторизация пользователей")
+Container(user_service, "User Service", "Java Spring", "Управление профилями и аккаунтами пользователей")
+Container(video_service, "Video Service", "Java Spring", "Потоковая передача и управление видео")
+Container(payment_service, "Payment Service", "Java Spring", "Обработка транзакций")
+Container(sub_service, "Subscription Service", "Java Spring", "Управление подписками")
+Container(events_service, "Events Service", "Java Spring", "Регистрация и логирование пользовательских событий")
+Container(recommend_service, "Recommendation Service", "Java Spring", "Формирование рекомендаций")
+Container(meta_service, "Meta Service", "Java Spring", "Каталог и мета-данные фильмов")
+
+ContainerQueue(events_queue, "Events Queue", "Kafka", "Асинхронная передача событий")
+
+ContainerDb(auth_db, "Auth DB", "PostgreSQL", "Учётные данные и токены")
+ContainerDb(user_db, "User DB", "PostgreSQL", "Данные профиля пользователей")
+ContainerDb(video_db, "Video DB", "PostgreSQL", "Видео и их ссылки")
+ContainerDb(payment_db, "Payment DB", "PostgreSQL", "История транзакций")
+ContainerDb(subscription_db, "Subscription DB", "PostgreSQL", "Данные подписок")
+ContainerDb(meta_db, "Meta DB", "PostgreSQL", "Мета-данные фильмов")
+ContainerDb(recommend_db, "Recommendation DB", "PostgreSQL", "История предпочтений и выборок")
+
+System_Ext(ext_recommender, "Рекомендательная система", "Формирует подборки на основе поведения")
+System_Ext(cinema_provider, "Внешние видео сервисы", "Источники видеоконтента")
+System_Ext(bank, "Платёжная система", "Обработка и подтверждение платежей")
+
+Rel(user, web_app, "Использует")
+Rel(user, mobile_app, "Использует")
+Rel(user, tv_app, "Использует")
+
+Rel(web_app, api_gateway, "HTTP")
+Rel(mobile_app, api_gateway, "HTTP")
+Rel(tv_app, api_gateway, "HTTP")
+
+Rel(api_gateway, auth_service, "REST")
+Rel(api_gateway, user_service, "REST")
+Rel(api_gateway, video_service, "REST")
+Rel(api_gateway, payment_service, "REST")
+Rel(api_gateway, sub_service, "REST")
+Rel(api_gateway, recommend_service, "REST")
+Rel(api_gateway, meta_service, "REST")
+Rel(api_gateway, events_service, "REST")
+
+Rel(video_service, meta_service, "Получение мета-данных")
+Rel(video_service, sub_service, "Проверка подписки")
+Rel(video_service, cinema_provider, "Запрос видеопотока")
+
+Rel(payment_service, bank, "Платежи")
+Rel(payment_service, sub_service, "Обновление статуса")
+Rel(sub_service, user_service, "Проверка пользователя")
+
+Rel(events_service, events_queue, "Публикация событий")
+Rel(events_queue, recommend_service, "Чтение событий")
+
+Rel(recommend_service, meta_service, "Контент для рекомендаций")
+Rel(recommend_service, ext_recommender, "Внешние рекомендации")
+
+Rel(auth_service, auth_db, "JDBC")
+Rel(user_service, user_db, "JDBC")
+Rel(video_service, video_db, "JDBC")
+Rel(payment_service, payment_db, "JDBC")
+Rel(sub_service, subscription_db, "JDBC")
+Rel(meta_service, meta_db, "JDBC")
+Rel(recommend_service, recommend_db, "JDBC")
+
+@enduml
