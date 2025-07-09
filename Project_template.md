@@ -5,7 +5,7 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+[ссылка на файл](./diagrams/Container.puml)
 
 # Задание 2
 
@@ -59,6 +59,18 @@
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka из UI http://localhost:8090 
 
+
+- запуск api тестов в docker:
+  - ![api_tests.png](images/api_tests.png)
+- отправка запросов к http://localhost:8000/api/movies и отслеживание по логам направления в proxy-service:
+  - ![rate_limit_proxying.png](images/rate_limit_proxying.png)
+- логи по kafka для events-service:
+  - ![event_service_kafka_logs.png](images/event_service_kafka_logs.png)
+- состояние топиков в kafka:
+  - ![kafka_topics_1.png](images/kafka_topics_1.png)
+  - ![kafka_topics_2.png](images/kafka_topics_2.png)
+  - ![kafka_topics_3.png](images/kafka_topics_3.png)
+
 # Задание 3
 
 Команда начала переезд в Kubernetes для лучшего масштабирования и повышения надежности. 
@@ -109,6 +121,7 @@ jobs:
 Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
 Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
 
+![cicd_success.png](images/cicd_success.png)
 
 ### Proxy в Kubernetes
 
@@ -168,6 +181,12 @@ cat .docker/config.json | base64
 
   - Необходимо создать Deployment и Service 
   - Доработайте ingress.yaml, чтобы можно было с помощью тестов проверить создание событий
+
+[dockerconfigsecret.yaml](./src/kubernetes/dockerconfigsecret.yaml)
+[events-service.yaml](src/kubernetes/events-service.yaml)
+[proxy-service.yaml](src/kubernetes/proxy-service.yaml)
+[ingress.yaml](src/kubernetes/ingress.yaml)
+
   - Выполните дальшейшие шаги для поднятия кластера:
 
   1. Создайте namespace:
@@ -274,6 +293,15 @@ cat .docker/config.json | base64
 
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
+- ![postman_api.movies.png](images/postman_api.movies.png)
+
+- логи тестов:
+  - ![api_tests_logs.png](images/api_tests_logs.png)
+- логи event-service, где запросы `api/events/movie, api/events/payment, api/events/user` должны были:
+  - попасть через proxy в event-service;
+  - отправиться в kafka;
+  - обработаться из kafka;
+    - ![events_service_to_from_kafka_logs.png](images/events_service_to_from_kafka_logs.png)
 
 
 # Задание 4
@@ -356,3 +384,9 @@ https://cinemaabyss.example.com/api/movies
 kubectl delete all --all -n cinemaabyss
 kubectl delete namespace cinemaabyss
 ```
+
+- развертывание и состояние кластера:
+  - ![helm_install.png](images/helm_install.png)
+  - ![helm_pods_check.png](images/helm_pods_check.png)
+-  проверка в postman:
+  - ![postman_api_check.png](images/postman_api_check.png)
